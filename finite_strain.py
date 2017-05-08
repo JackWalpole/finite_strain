@@ -19,21 +19,38 @@ class Lij:
     
     def rotation_rate(self):
         return (self.Lij - np.transpose(self.Lij))/2
-    
+ 
+class Trajectory:
+    """Forward motion of particle: position and velocity""" 
+    def __init__(self, r, lat, lon, vx, vy, vz):
+        self.r = float(r)
+        self.lat = float(lat)
+        self.lon = float(lon)
+        self.vx = float(vx)
+        self.vy = float(vy)
+        self.vz = float(vz)
+        # get cartesian positions
+        self.x, self.y, self.z = sph2cart(lat,lon,r)
     
 class Path:
-    """list of Lij types along a path"""
+    """list of Lij types and Trajectory along a path"""
 
-    def __init__(self,filename):
-        self.filename = filename
+    def __init__(self,Lfilename,Pfilename):
+        self.Lfilename = Lfilename
+        self.Pfilename = Pfilename
         try:
-            self._read_file()
+            self._read_L_file()
         except IOError:
-            print 'cannot open ' + filename
+            print 'cannot open ' + Lfilename
+        try:
+            self._read_P_file()
+        except IOError:
+            print 'cannot open ' + Pfilename
+            
 
 
-    def _read_file(self):
-        with open(self.filename, 'r') as f:
+    def _read_L_file(self):
+        with open(self.Lfilename, 'r') as f:
             # get info from top line
             fl = f.readline().split()
             self.nsteps = int(fl[0])
@@ -51,6 +68,17 @@ class Path:
                 self.listLij.reverse()
                 for l in self.listLij:
                     l.tincr = -l.tincr
+                    
+    def _read_P_file(self):
+        with open(self.Pfilename, 'r') as f:
+            # skip the first 2 lines
+            _ = f.readline()
+            _ = f.readline()
+            # populate a list of Trajectory objects
+            self.listTrajectory = []
+            for line in f.readlines():
+                self.listTrajectory.append( Trajectory( *tuple( line.split())))
+
     
     def accumulate_strain(self):
         """get the total finite deformation along path"""
@@ -62,8 +90,8 @@ class Path:
         return F
     
     
-    def Flinn(self):
-        """Get Flinn info along path"""
+    # def Flinn(self):
+    #     """Get Flinn info along path"""
     
     
                     
@@ -106,59 +134,59 @@ class Fij:
         w, v = np.linalg.eig(self.rightStretch())
         return w, np.dot(self.Rotation(), v)
     
-    def plot3d(self,axlim=3):
-        """plot finite strain ellipsoid"""
-        from mpl_toolkits.mplot3d import Axes3D
-        import matplotlib.pyplot as plt
-        from matplotlib.patches import FancyArrowPatch
-        from mpl_toolkits.mplot3d import proj3d
-        class Arrow3D(FancyArrowPatch):
-
-            def __init__(self, xs, ys, zs, *args, **kwargs):
-                FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
-                self._verts3d = xs, ys, zs
-
-            def draw(self, renderer):
-                xs3d, ys3d, zs3d = self._verts3d
-                xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
-                self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
-                FancyArrowPatch.draw(self, renderer)
-        fig = plt.figure()
-        ax = fig.gca(projection='3d')
-        lim = [-axlim,axlim]
-        ax.set_xlim(lim)
-        ax.set_ylim(lim)
-        ax.set_zlim(lim)
-        ax.set_aspect("equal")
-
-        # draw sphere
-        u, v = np.mgrid[0:2*np.pi:40j, 0:np.pi:20j]
-        x = np.cos(u)*np.sin(v)
-        y = np.sin(u)*np.sin(v)
-        z = np.cos(v)
-
-        # put into array
-        XYZ = np.vstack([x.flatten(),y.flatten(),z.flatten()])
-        # deform according to F
-        XYZ = np.dot(self.Fij,XYZ)
-
-        # put back into meshgrid
-        a, b, c = np.vsplit(XYZ,3)
-        x = np.reshape(a,x.shape)
-        y = np.reshape(b,y.shape)
-        z = np.reshape(c,z.shape)
-
-        # ax.plot_wireframe(x, y, z, color="r")
-        ax.plot_surface(x,y,z,rstride=1,cstride=1,shade=True)
-
-        # plot principal vectors
-        w, v = self.Principal()
-        for jj in np.arange(3):
-            a = Arrow3D([ 0, 1.2 * w[jj] * v[0, jj] ], [0, 1.2 * w[jj] * v[1, jj] ], [0, 1.2 * w[jj] * v[2, jj] ], mutation_scale=20,
-                    lw=1, arrowstyle="-|>", color="k")
-            ax.add_artist(a)
-
-        plt.show()
+    # def plot3d(self,axlim=3):
+    #     """plot finite strain ellipsoid"""
+    #     from mpl_toolkits.mplot3d import Axes3D
+    #     import matplotlib.pyplot as plt
+    #     from matplotlib.patches import FancyArrowPatch
+    #     from mpl_toolkits.mplot3d import proj3d
+    #     class Arrow3D(FancyArrowPatch):
+    #
+    #         def __init__(self, xs, ys, zs, *args, **kwargs):
+    #             FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
+    #             self._verts3d = xs, ys, zs
+    #
+    #         def draw(self, renderer):
+    #             xs3d, ys3d, zs3d = self._verts3d
+    #             xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+    #             self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
+    #             FancyArrowPatch.draw(self, renderer)
+    #     fig = plt.figure()
+    #     ax = fig.gca(projection='3d')
+    #     lim = [-axlim,axlim]
+    #     ax.set_xlim(lim)
+    #     ax.set_ylim(lim)
+    #     ax.set_zlim(lim)
+    #     ax.set_aspect("equal")
+    #
+    #     # draw sphere
+    #     u, v = np.mgrid[0:2*np.pi:40j, 0:np.pi:20j]
+    #     x = np.cos(u)*np.sin(v)
+    #     y = np.sin(u)*np.sin(v)
+    #     z = np.cos(v)
+    #
+    #     # put into array
+    #     XYZ = np.vstack([x.flatten(),y.flatten(),z.flatten()])
+    #     # deform according to F
+    #     XYZ = np.dot(self.Fij,XYZ)
+    #
+    #     # put back into meshgrid
+    #     a, b, c = np.vsplit(XYZ,3)
+    #     x = np.reshape(a,x.shape)
+    #     y = np.reshape(b,y.shape)
+    #     z = np.reshape(c,z.shape)
+    #
+    #     # ax.plot_wireframe(x, y, z, color="r")
+    #     ax.plot_surface(x,y,z,rstride=1,cstride=1,shade=True)
+    #
+    #     # plot principal vectors
+    #     w, v = self.Principal()
+    #     for jj in np.arange(3):
+    #         a = Arrow3D([ 0, 1.2 * w[jj] * v[0, jj] ], [0, 1.2 * w[jj] * v[1, jj] ], [0, 1.2 * w[jj] * v[2, jj] ], mutation_scale=20,
+    #                 lw=1, arrowstyle="-|>", color="k")
+    #         ax.add_artist(a)
+    #
+    #     plt.show()
     
 def update_strain(F,L):
     """update strain on finite deformation tensor F according to velocity gradients tensor L"""
@@ -167,3 +195,11 @@ def update_strain(F,L):
     B = np.identity(3) + half_dtL
     F.Fij = np.dot(np.linalg.inv(A), np.dot( B, F.Fij))
     return F
+    
+def sph2cart(lat,lon,r):
+    lat = np.deg2rad(lat)
+    lon = np.deg2rad(lon)
+    z = r * np.sin(lat)
+    y = r * np.cos(lat) * np.sin(lon)
+    x = r * np.cos(lat) * np.cos(lon)
+    return x,y,z
