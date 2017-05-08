@@ -22,15 +22,17 @@ class Lij:
  
 class Trajectory:
     """Forward motion of particle: position and velocity""" 
-    def __init__(self, r, lat, lon, vx, vy, vz):
+    def __init__(self, r, lat, lon, x, y, z, vx, vy, vz):
         self.r = float(r)
         self.lat = float(lat)
         self.lon = float(lon)
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
         self.vx = float(vx)
         self.vy = float(vy)
         self.vz = float(vz)
-        # get cartesian positions
-        self.x, self.y, self.z = sph2cart(lat,lon,r)
+
     
 class Path:
     """list of Lij types and Trajectory along a path"""

@@ -10,13 +10,9 @@ from mayavi.modules.api import Surface
 from mayavi import mlab
 
 
-def gen_ellipsoid(engine,position,shape,orientation):
+def gen_ellipsoid(position,shape,orientation):
     """given the existence of a scene generate ellipsoid"""
-    
-    source = ParametricSurface()
-    source.function = 'ellipsoid'
-    engine.add_source(source)
-    
+        
     surface = Surface()
     source.add_module(surface)
     
@@ -33,17 +29,27 @@ def gen_ellipsoid(engine,position,shape,orientation):
     return surface
     
 
-# if __main__ == name:
 engine = Engine()
 engine.start()
 scene = engine.new_scene()
-scene.scene.disable_render = True
+# scene.scene.disable_render = True
 
-surfaces = []
+source = ParametricSurface()
+source.function = 'ellipsoid'
+engine.add_source(source)
 
-for ii in range(10):
-    surfaces.append(gen_ellipsoid(engine,np.random.rand(3),np.random.rand(3),np.random.rand(3)*360))
+# start with a sphere
+surface = gen_ellipsoid(np.zeros(3),np.ones(3),np.zeros(3))
+
+for ii in range(100):
+    print ii
+    surface.actor.actor.set(scale = [1 + ii*.2,1,1])
+
+# surfaces = []
+
+# for ii in range(10):
+    # surfaces.append(gen_ellipsoid(np.random.rand(3),np.random.rand(3),np.random.rand(3)*360))
     
-scene.scene.disable_render = False
+# scene.scene.disable_render = False
 
-mlab.show()
+# mlab.show()
