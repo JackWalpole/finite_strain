@@ -37,17 +37,19 @@ class Trajectory:
 class Path:
     """list of Lij types and Trajectory along a path"""
 
-    def __init__(self,Lfilename,Pfilename):
+    def __init__(self,Lfilename=None,Pfilename=None):
         self.Lfilename = Lfilename
         self.Pfilename = Pfilename
-        try:
-            self._read_L_file()
-        except IOError:
-            print 'cannot open ' + Lfilename
-        try:
-            self._read_P_file()
-        except IOError:
-            print 'cannot open ' + Pfilename
+        if (Lfilename not None):
+            try:
+                self._read_L_file()
+            except IOError:
+                print 'cannot open ' + Lfilename
+        if (Pfilename not None):
+            try:
+                self._read_P_file()
+            except IOError:
+                print 'cannot open ' + Pfilename
             
 
 
