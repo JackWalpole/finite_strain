@@ -66,10 +66,10 @@ class Path:
             for line in f.readlines():
                 self.listLij.append( Lij( *tuple( line.split())))
             # if time step is negative, flip
-            if self.listLij[0].tincr < 0:
-                self.listLij.reverse()
-                for l in self.listLij:
-                    l.tincr = -l.tincr
+            # if self.listLij[0].tincr < 0:
+            #     self.listLij.reverse()
+            #     for l in self.listLij:
+            #         l.tincr = -l.tincr
                     
     def _read_P_file(self):
         with open(self.Pfilename, 'r') as f:
@@ -134,7 +134,7 @@ class Fij:
     def Principal(self):
         """get principal axis lengths and axes directions of finite strain ellipsoid"""
         w, v = np.linalg.eig(self.rightStretch())
-        return w, np.dot(self.Rotation(), v)
+        return w, np.dot(self.Rotation(),v)
     
     # def plot3d(self,axlim=3):
     #     """plot finite strain ellipsoid"""
