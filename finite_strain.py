@@ -40,12 +40,12 @@ class Path:
     def __init__(self,Lfilename=None,Pfilename=None):
         self.Lfilename = Lfilename
         self.Pfilename = Pfilename
-        if (Lfilename not None):
+        if (Lfilename is not None):
             try:
                 self._read_L_file()
             except IOError:
                 print 'cannot open ' + Lfilename
-        if (Pfilename not None):
+        if (Pfilename is not None):
             try:
                 self._read_P_file()
             except IOError:
