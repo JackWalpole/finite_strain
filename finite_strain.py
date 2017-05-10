@@ -67,11 +67,13 @@ class Path:
             self.listLij = []
             for line in f.readlines():
                 self.listLij.append( Lij( *tuple( line.split())))
-            # if time step is negative, flip
-            # if self.listLij[0].tincr < 0:
-            #     self.listLij.reverse()
-            #     for l in self.listLij:
-            #         l.tincr = -l.tincr
+            # if time step is negative, flip tinc 
+            # Andrew Walker assures me that in his _L_ files
+            # the order is oldest first and tincr should be positive
+            if self.listLij[0].tincr < 0:
+                # self.listLij.reverse()
+                for l in self.listLij:
+                    l.tincr = -l.tincr
                     
     def _read_P_file(self):
         with open(self.Pfilename, 'r') as f:
@@ -136,8 +138,18 @@ class Fij:
     def Principal(self):
         """get principal axis lengths and axes directions of finite strain ellipsoid"""
         w, v = np.linalg.eig(self.rightStretch())
-        return w, np.dot(self.Rotation(),v)
+        # rotate eigenvalues of stretch tensor to proper orientation
+        v = np.dot(self.Rotation(),v)
+        # sort them with max first and min last
+        idx = w.argsort()[::-1]
+        return w[idx], v[:,idx] 
     
+    # def Flinn(self):
+    #     w,v = self.Principal()
+    #     cigar = w[0]/w[1]
+    #     pancake = w[1]/w[2]
+        
+        
     # def plot3d(self,axlim=3):
     #     """plot finite strain ellipsoid"""
     #     from mpl_toolkits.mplot3d import Axes3D
