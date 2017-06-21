@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import numpy as np
+
 # import matplotlib
 # matplotlib.rcParams['figure.figsize'] = (20.0, 10.0)
 # from mpl_toolkits.mplot3d import Axes3D
@@ -44,12 +45,12 @@ class Path:
             try:
                 self._read_L_file()
             except IOError:
-                print 'cannot open ' + Lfilename
+                print('cannot open ' + Lfilename)
         if (Pfilename is not None):
             try:
                 self._read_P_file()
             except IOError:
-                print 'cannot open ' + Pfilename
+                print('cannot open ' + Pfilename)
             
 
 
