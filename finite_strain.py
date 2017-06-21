@@ -220,3 +220,7 @@ def sph2cart(lat,lon,r):
     y = r * np.cos(lat) * np.sin(lon)
     x = r * np.cos(lat) * np.cos(lon)
     return x,y,z
+    
+def get_F_from_eigenvecs_and_eigenvals(eigvecs,eigvals):
+    """returns the Fij components of the finite deformation tensor"""
+    return np.dot( eigvecs, np.dot( np.diag(eigvals), np.linalg.inv(eigvecs)))
