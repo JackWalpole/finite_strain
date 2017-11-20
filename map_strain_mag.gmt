@@ -1,0 +1,16 @@
+#!/bin/bash
+
+gmtset MEASURE_UNIT cm
+
+fig=map_strain_mag.ps
+
+awk 'NR>1{print $2,$1,sqrt((($3/$4)-1)^2+(($4/$5)-1)^2)}' finite_strain_ellipsoids.txt | \
+	xyz2grd -I5 -G"strain.grd" -Rg
+
+cpt=/tmp/cpt$$
+makecpt -Ccool -T0/20/.1 -D > $cpt
+
+grdimage strain.grd -Rg -JQ20 -C$cpt -B0 -K > $fig
+pscoast -R -J -Dc -Wthin -O >> $fig
+
+rm /tmp/*$$

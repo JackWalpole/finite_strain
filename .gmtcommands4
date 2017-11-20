@@ -1,0 +1,8 @@
+# GMT common arguments shelf
+-B.5:pancakes < 1.0 < cigars:
+-JQ20
+-JR20
+-Rg
+-jQ20
+EOF
+EOF
